@@ -15,6 +15,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    'django_crontab',
+    'mptt',
+
+    'app',
 ]
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -46,8 +51,8 @@ WSGI_APPLICATION = 'project.wsgi.application'
 # Database
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'arxiv',
     }
 }
 
@@ -76,3 +81,17 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
+
+# MPTT
+MPTT_ADMIN_LEVEL_INDENT = 30
+
+# Cron
+CRONJOBS = [
+    ('*/1 * * * *', 'app.cron.fetch_new_arxiv_articles.run')
+]
+CRONTAB_COMMAND_SUFFIX = '>> /tmp/arxiv_fetch_new_articles.log 2>&1'
+
+# Arxiv fetcher
+ARXIV_BASE_URL = 'https://arxiv.org'
+ARXIV_FEED_URL = None
+ARXIV_USER_AGENT = None
