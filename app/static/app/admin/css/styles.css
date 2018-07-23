@@ -1,0 +1,45 @@
+#article_form .field-html_meta_safe dt > a[name^=item] {
+    display: none;
+}
+
+#article_form .form-row label {
+    font-weight: bold;
+}
+
+#article_form .field-html_meta_safe dd {
+    margin-left: 5px;
+    margin-top: 5px;
+}
+
+#article_form .field-html_meta_safe p {
+    margin-top: 20px;
+}
+
+#article_form .field-html_meta_safe .list-authors .descriptor {
+    display: none;
+}
+
+#article_form .field-html_meta_safe .list-title {
+    font-size: large;
+    font-weight: bold;
+}
+
+#article_form .field-html_meta_safe .list-title .descriptor {
+    display: none;
+}
+
+#article_form .field-html_meta_safe .list-comments,
+#article_form .field-html_meta_safe .list-journal-ref,
+#article_form .field-html_meta_safe .list-subjects {
+    font-size: 90%;
+    font-style: italic;
+}
+
+#article_form .field-html_meta_safe .list-subjects .primary-subject {
+    font-weight: bold;
+}
+
+#article_form .field-categories select {
+    min-height: 300px;
+    min-width: 300px;
+}

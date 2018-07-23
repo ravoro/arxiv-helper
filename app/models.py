@@ -1,9 +1,21 @@
 from bs4 import BeautifulSoup
-from django.db.models import Model
+from django.db.models import Model, QuerySet
 from django.db.models.deletion import CASCADE
 from django.db.models.fields import BooleanField, CharField, DateField, TextField
 from django.utils.functional import cached_property
+from django.utils.safestring import mark_safe
 from mptt.models import MPTTModel, TreeForeignKey, TreeManyToManyField
+
+
+class ArticleQuerySet(QuerySet):
+    def processed_with_categories(self):
+        return self.filter(is_processed=True).exclude(categories=None)
+
+    def unprocessed(self):
+        return self.filter(is_processed=False)
+
+    def oldest_unprocessed(self):
+        return self.unprocessed().order_by('id_arxiv').first()
 
 
 class Article(Model):
@@ -15,6 +27,8 @@ class Article(Model):
     is_processed = BooleanField(default=False)
     date_submitted = DateField()
     date_updated = DateField()
+
+    objects = ArticleQuerySet.as_manager()
 
     @cached_property
     def title(self):
@@ -29,6 +43,11 @@ class Article(Model):
         return ', '.join(cats)
 
     categories_str.short_description = 'Categories'
+
+    def html_meta_safe(self):
+        return mark_safe(self.html_meta)
+
+    html_meta_safe.short_description = 'Abstract'
 
     def __str__(self):
         return "arXiv:{}".format(self.id_arxiv)
@@ -45,7 +64,7 @@ class Category(MPTTModel):
         return self.name
 
     class Meta:
-        verbose_name_plural = "Categories"
+        verbose_name_plural = "categories"
 
     class MPTTMeta:
         order_insertion_by = ['name']
