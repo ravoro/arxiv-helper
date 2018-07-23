@@ -148,9 +148,9 @@ def run():
     logging.warning('Detected {} new submissions.'.format(len(new_submissions)))
 
     for submission in new_submissions:
+        logging.warning('Creating submission: {}'.format(article))
         article = Article.objects.create(id_arxiv=submission['id_arxiv'],
                                          html_meta=submission['html_meta'],
                                          date_submitted=submission_date,
                                          date_updated=submission_date,
                                          is_processed=False)
-        logging.warning('Creating submission: {}'.format(article))
