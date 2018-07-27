@@ -109,17 +109,20 @@ def _get_date_from_new_submissions_title_or_none(tag):
         return None
 
 
-def run():
-    logging.warning("Running 'fetch_new_articles' job at {}".format(datetime.now()))
-
-    response = requests.get(settings.ARXIV_FEED_URL, headers={'User-Agent': settings.ARXIV_USER_AGENT})
+def _url_to_soup(url):
+    """Return a BeautifulSoup representation of html at the given url."""
+    response = requests.get(url, headers={'User-Agent': settings.ARXIV_USER_AGENT})
     html = response.text
-    soup = BeautifulSoup(html, 'html.parser')
+    return BeautifulSoup(html, 'html.parser')
+
+
+def _soup_to_articles(soup):
+    """Return collection of articles (new submissions, crosslists, replacements) inside the given BeautifulSoup obj."""
     dlpage = soup.select_one('#dlpage')
     section_titles = dlpage.select('h3')
 
-    _assert_or_exit(len(section_titles) == 3,
-                    'Did not have 3 section titles. section_titles: {}.'.format(section_titles))
+    if len(section_titles) != 3:
+        logging.warning('Did not have 3 section titles. section_titles: {}.'.format(section_titles))
 
     new_submissions_title = section_titles[0]
     _assert_or_exit(new_submissions_title.text.strip().lower().startswith('new submissions for'),
@@ -151,46 +154,82 @@ def run():
     logging.warning('Detected {} new submissions.'.format(len(new_submissions)))
 
     # Process crosslists
+    crosslists = []
+    if len(section_titles) > 1 and section_titles[1].text.strip().lower().startswith('cross-lists for'):
+        crosslists_title = section_titles[1]
+        _assert_or_exit(crosslists_title.text.strip().lower().startswith('cross-lists for'),
+                        'The second section title was not for crosslists. section_titles: {}.'.format(section_titles))
 
-    crosslists_title = section_titles[1]
-    _assert_or_exit(crosslists_title.text.strip().lower().startswith('cross-lists for'),
-                    'The second section title was not for crosslists. section_titles: {}.'.format(section_titles))
+        crosslists_dl = _next_tag_sibling(crosslists_title)
+        _assert_or_exit(crosslists_dl.name == 'dl',
+                        'A `<dl>` did not follow the crosslists title.')
 
-    crosslists_dl = _next_tag_sibling(crosslists_title)
-    _assert_or_exit(crosslists_dl.name == 'dl',
-                    'A `<dl>` did not follow the crosslists title.')
+        crosslists_pairings = _pair_dt_dd_tags(crosslists_dl.children)
+        _assert_or_exit(_validate_dt_dd_pairings(crosslists_pairings),
+                        'A `<dl>` did not contain valid parings of only `<dt>` + `<dd>`.')
 
-    crosslists_pairings = _pair_dt_dd_tags(crosslists_dl.children)
-    _assert_or_exit(_validate_dt_dd_pairings(crosslists_pairings),
-                    'A `<dl>` did not contain valid parings of only `<dt>` + `<dd>`.')
+        crosslists_tags = [_append_tags(pair) for pair in crosslists_pairings]
+        _assert_or_exit(_validate_all_submissions_have_arxiv_ids(crosslists_tags),
+                        'A crosslist did not contain a valid arxiv id.')
 
-    crosslists_tags = [_append_tags(pair) for pair in crosslists_pairings]
-    _assert_or_exit(_validate_all_submissions_have_arxiv_ids(crosslists_tags),
-                    'A crosslist did not contain a valid arxiv id.')
-
-    crosslists = [_submission_tag_to_dict(s) for s in crosslists_tags]
+        crosslists = [_submission_tag_to_dict(s) for s in crosslists_tags]
     logging.warning('Detected {} crosslists.'.format(len(crosslists)))
 
     # Process replacements
+    replacements = []
+    _is_title_2 = len(section_titles) > 1 and section_titles[1].text.strip().lower().startswith('replacements for')
+    _is_title_3 = len(section_titles) > 2 and section_titles[2].text.strip().lower().startswith('replacements for')
+    if _is_title_2 or _is_title_3:
+        replacements_title = section_titles[2] if _is_title_3 else section_titles[1]
+        _assert_or_exit(replacements_title.text.strip().lower().startswith('replacements for'),
+                        'The third section title was not for replacements. section_titles: {}.'.format(section_titles))
 
-    replacements_title = section_titles[2]
-    _assert_or_exit(replacements_title.text.strip().lower().startswith('replacements for'),
-                    'The third section title was not for replacements. section_titles: {}.'.format(section_titles))
+        replacements_dl = _next_tag_sibling(replacements_title)
+        _assert_or_exit(replacements_dl.name == 'dl',
+                        'A `<dl>` did not follow the replacements title.')
 
-    replacements_dl = _next_tag_sibling(replacements_title)
-    _assert_or_exit(replacements_dl.name == 'dl',
-                    'A `<dl>` did not follow the replacements title.')
+        replacements_pairings = _pair_dt_dd_tags(replacements_dl.children)
+        _assert_or_exit(_validate_dt_dd_pairings(replacements_pairings),
+                        'A `<dl>` did not contain valid parings of only `<dt>` + `<dd>`.')
 
-    replacements_pairings = _pair_dt_dd_tags(replacements_dl.children)
-    _assert_or_exit(_validate_dt_dd_pairings(replacements_pairings),
-                    'A `<dl>` did not contain valid parings of only `<dt>` + `<dd>`.')
+        replacements_tags = [_append_tags(pair) for pair in replacements_pairings]
+        _assert_or_exit(_validate_all_submissions_have_arxiv_ids(replacements_tags),
+                        'A replacement did not contain a valid arxiv id.')
 
-    replacements_tags = [_append_tags(pair) for pair in replacements_pairings]
-    _assert_or_exit(_validate_all_submissions_have_arxiv_ids(replacements_tags),
-                    'A replacement did not contain a valid arxiv id.')
-
-    replacements = [_submission_tag_to_dict(s) for s in replacements_tags]
+        replacements = [_submission_tag_to_dict(s) for s in replacements_tags]
     logging.warning('Detected {} replacements.'.format(len(replacements)))
+
+    return {
+        'new_submissions': new_submissions,
+        'crosslists': crosslists,
+        'replacements': replacements,
+    }
+
+
+def run():
+    logging.warning("Running 'fetch_new_articles' job at {}".format(datetime.now()))
+
+    arxiv_feed_urls = [
+        settings.ARXIV_CS_FEED_URL,
+        settings.ARXIV_EESS_FEED_URL,
+        settings.ARXIV_NLIN_FEED_URL,
+        settings.ARXIV_PHYSICS_FEED_URL,
+        settings.ARXIV_QBIO_FEED_URL,
+    ]
+
+    new_submissions = []
+    crosslists = []
+    replacements = []
+    for feed_url in arxiv_feed_urls:
+        logging.warning('Assessing url: {}'.format(feed_url))
+        soup = _url_to_soup(feed_url)
+        articles = _soup_to_articles(soup)
+        new_submissions += articles['new_submissions']
+        crosslists += articles['crosslists']
+        replacements += articles['replacements']
+
+    _cs_new_submissions_title = _url_to_soup(settings.ARXIV_CS_FEED_URL).select_one('#dlpage').select('h3')[0]
+    submission_date = _get_date_from_new_submissions_title_or_none(_cs_new_submissions_title)
 
     for submission in new_submissions:
         logging.warning('Creating "new submission": {}'.format(submission['id_arxiv']))
