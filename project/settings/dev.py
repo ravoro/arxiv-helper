@@ -11,6 +11,8 @@ DATABASES['default'].update({
 
 CRONTAB_DJANGO_SETTINGS_MODULE = 'project.settings.dev'
 
+ARXIV_DOWNLOAD_DELAY_SECONDS = 0
+
 ARXIV_CS_FEED_URL = 'http://localhost:8000/list/cs/new/'
 ARXIV_EESS_FEED_URL = 'http://localhost:8000/list/eess/new/'
 ARXIV_NLIN_FEED_URL = 'http://localhost:8000/list/nlin/new/'

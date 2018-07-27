@@ -7,6 +7,7 @@ Meant to be run daily.
 import logging
 import os
 import re
+import time
 from datetime import datetime
 
 import requests
@@ -111,6 +112,7 @@ def _get_date_from_new_submissions_title_or_none(tag):
 
 def _url_to_soup(url):
     """Return a BeautifulSoup representation of html at the given url."""
+    time.sleep(settings.ARXIV_DOWNLOAD_DELAY_SECONDS)
     response = requests.get(url, headers={'User-Agent': settings.ARXIV_USER_AGENT})
     html = response.text
     return BeautifulSoup(html, 'html.parser')
