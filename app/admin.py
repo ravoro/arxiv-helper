@@ -16,7 +16,7 @@ class ArticleAdmin(admin.ModelAdmin):
     actions = None
     change_form_template = 'app/admin/change_form.html'
     change_list_template = 'app/admin/change_list.html'
-    list_display = ['__str__', 'title', 'categories_str']
+    list_display = ['__str__', 'title', 'categories_str', 'date_updated']
     list_filter = [('categories', TreeRelatedFieldListFilter)]
     readonly_fields = ['html_meta_safe']
     fields = ['html_meta_safe', 'categories']

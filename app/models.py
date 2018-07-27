@@ -26,7 +26,7 @@ class Article(Model):
     html_meta = TextField()
     is_processed = BooleanField(default=False)
     date_submitted = DateField()
-    date_updated = DateField()
+    date_updated = DateField(verbose_name='Date')
 
     objects = ArticleQuerySet.as_manager()
 
