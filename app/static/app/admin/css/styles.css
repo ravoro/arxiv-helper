@@ -1,3 +1,18 @@
+#header #user-tools {
+    font-size: 12px;
+}
+
+body.app-app.model-article.change-form #content h1 {
+    display: none;
+}
+
+#article_form dt,
+#article_form dd,
+#article_form p {
+    font-size: 14px;
+}
+
+
 #article_form .field-html_meta_safe dt > a[name^=item] {
     display: none;
 }
@@ -31,7 +46,7 @@
 #article_form .field-html_meta_safe .list-comments,
 #article_form .field-html_meta_safe .list-journal-ref,
 #article_form .field-html_meta_safe .list-subjects {
-    font-size: 90%;
+    font-size: 13px;
     font-style: italic;
 }
 
@@ -42,4 +57,16 @@
 #article_form .field-categories select {
     min-height: 300px;
     min-width: 300px;
+}
+
+#article_form .submit-row {
+    background: #fff;
+    border: 0;
+    overflow: visible;
+}
+
+#article_form .submit-row input[type=submit] {
+    position: relative;
+    top: -370px;
+    left: -100px;
 }
