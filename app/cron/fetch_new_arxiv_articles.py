@@ -12,6 +12,7 @@ from datetime import datetime
 import requests
 from bs4 import BeautifulSoup, Tag
 from django.conf import settings
+from django.db import IntegrityError
 
 from app.models import Article
 
@@ -132,6 +133,8 @@ def run():
     _assert_or_exit(new_articles_count == 0,
                     'Articles with same ({}) or newer submission date already exist in db.'.format(submission_date))
 
+    # Process new submissions
+
     new_submissions_dl = _next_tag_sibling(new_submissions_title)
     _assert_or_exit(new_submissions_dl.name == 'dl',
                     'A `<dl>` did not follow the new submissions title.')
@@ -147,10 +150,85 @@ def run():
     new_submissions = [_submission_tag_to_dict(s) for s in new_submissions_tags]
     logging.warning('Detected {} new submissions.'.format(len(new_submissions)))
 
+    # Process crosslists
+
+    crosslists_title = section_titles[1]
+    _assert_or_exit(crosslists_title.text.strip().lower().startswith('cross-lists for'),
+                    'The second section title was not for crosslists. section_titles: {}.'.format(section_titles))
+
+    crosslists_dl = _next_tag_sibling(crosslists_title)
+    _assert_or_exit(crosslists_dl.name == 'dl',
+                    'A `<dl>` did not follow the crosslists title.')
+
+    crosslists_pairings = _pair_dt_dd_tags(crosslists_dl.children)
+    _assert_or_exit(_validate_dt_dd_pairings(crosslists_pairings),
+                    'A `<dl>` did not contain valid parings of only `<dt>` + `<dd>`.')
+
+    crosslists_tags = [_append_tags(pair) for pair in crosslists_pairings]
+    _assert_or_exit(_validate_all_submissions_have_arxiv_ids(crosslists_tags),
+                    'A crosslist did not contain a valid arxiv id.')
+
+    crosslists = [_submission_tag_to_dict(s) for s in crosslists_tags]
+    logging.warning('Detected {} crosslists.'.format(len(crosslists)))
+
+    # Process replacements
+
+    replacements_title = section_titles[2]
+    _assert_or_exit(replacements_title.text.strip().lower().startswith('replacements for'),
+                    'The third section title was not for replacements. section_titles: {}.'.format(section_titles))
+
+    replacements_dl = _next_tag_sibling(replacements_title)
+    _assert_or_exit(replacements_dl.name == 'dl',
+                    'A `<dl>` did not follow the replacements title.')
+
+    replacements_pairings = _pair_dt_dd_tags(replacements_dl.children)
+    _assert_or_exit(_validate_dt_dd_pairings(replacements_pairings),
+                    'A `<dl>` did not contain valid parings of only `<dt>` + `<dd>`.')
+
+    replacements_tags = [_append_tags(pair) for pair in replacements_pairings]
+    _assert_or_exit(_validate_all_submissions_have_arxiv_ids(replacements_tags),
+                    'A replacement did not contain a valid arxiv id.')
+
+    replacements = [_submission_tag_to_dict(s) for s in replacements_tags]
+    logging.warning('Detected {} replacements.'.format(len(replacements)))
+
     for submission in new_submissions:
-        logging.warning('Creating submission: {}'.format(article))
-        article = Article.objects.create(id_arxiv=submission['id_arxiv'],
-                                         html_meta=submission['html_meta'],
-                                         date_submitted=submission_date,
-                                         date_updated=submission_date,
-                                         is_processed=False)
+        logging.warning('Creating "new submission": {}'.format(submission['id_arxiv']))
+        try:
+            Article.objects.create(id_arxiv=submission['id_arxiv'],
+                                   html_meta=submission['html_meta'],
+                                   date_submitted=submission_date,
+                                   date_updated=submission_date,
+                                   is_processed=False)
+        except IntegrityError:
+            logging.warning('Integrity error occurred adding "new submission" #{}. Ignoring error and proceeding.'.format(submission['id_arxiv']))
+
+    for crosslist in crosslists:
+        logging.warning('Creating crosslist: {}'.format(crosslist['id_arxiv']))
+        try:
+            Article.objects.create(id_arxiv=crosslist['id_arxiv'],
+                                   html_meta=crosslist['html_meta'],
+                                   date_submitted=submission_date,
+                                   date_updated=submission_date,
+                                   is_processed=False)
+        except IntegrityError:
+            logging.warning('Integrity error occurred adding "crosslist" #{}. Marking record as unprocessed.'.format(crosslist['id_arxiv']))
+            article = Article.objects.get(id_arxiv=crosslist['id_arxiv'])
+            article.is_processed = False
+            article.save()
+
+    for replacement in replacements:
+        logging.warning('Creating replacement: {}'.format(replacement['id_arxiv']))
+        try:
+            # TODO: Fetch complete article details for replacement that is not yet in db
+            Article.objects.create(id_arxiv=replacement['id_arxiv'],
+                                   html_meta=replacement['html_meta'],
+                                   date_submitted=submission_date,
+                                   date_updated=submission_date,
+                                   is_processed=False)
+        except IntegrityError:
+            logging.warning('Integrity error occurred adding "replacement" #{}. Marking record as unprocessed.'.format(replacement['id_arxiv']))
+            article = Article.objects.get(id_arxiv=replacement['id_arxiv'])
+            article.is_processed = False
+            article.date_updated = submission_date
+            article.save()
