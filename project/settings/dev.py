@@ -9,6 +9,8 @@ DATABASES['default'].update({
     'PASSWORD': 'password-placeholder',
 })
 
+INTERNAL_IPS = ['127.0.0.1']
+
 CRONTAB_DJANGO_SETTINGS_MODULE = 'project.settings.dev'
 
 ARXIV_DOWNLOAD_DELAY_SECONDS = 0

@@ -7,6 +7,15 @@
     <link rel="stylesheet" href="{% static 'app/admin/css/styles.css' %}">
 {% endblock %}
 
+{% block extrahead %}
+    {{ block.super }}
+    <script>
+        setTimeout(function () {
+            document.querySelector('#id_categories_filter #id_categories_input').focus();
+        }, 1000);
+    </script>
+{% endblock %}
+
 {% block submit_buttons_bottom %}
     {% if show_custom_submit_row %}
         <div class="submit-row">

@@ -3,4 +3,6 @@ __pycache__/
 .idea/
 /venv/
 /project/settings/prod.py
+/project/urls_test.py
+/tmp/
 notes.md

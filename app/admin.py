@@ -16,10 +16,11 @@ class ArticleAdmin(admin.ModelAdmin):
     actions = None
     change_form_template = 'app/admin/change_form.html'
     change_list_template = 'app/admin/change_list.html'
+    fields = ['html_meta_safe', 'categories']
+    filter_horizontal = ['categories']
     list_display = ['__str__', 'title', 'categories_str', 'date_updated']
     list_filter = [('categories', TreeRelatedFieldListFilter)]
     readonly_fields = ['html_meta_safe']
-    fields = ['html_meta_safe', 'categories']
 
     def has_add_permission(self, request):
         return False
@@ -85,7 +86,7 @@ class ArticleAdmin(admin.ModelAdmin):
 
 
 class CategoryAdmin(MPTTModelAdmin):
-    pass
+    fields = ['parent', 'name']
 
 
 admin.site.register(Article, ArticleAdmin)

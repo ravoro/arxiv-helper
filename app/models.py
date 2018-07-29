@@ -6,6 +6,8 @@ from django.utils.functional import cached_property
 from django.utils.safestring import mark_safe
 from mptt.models import MPTTModel, TreeForeignKey, TreeManyToManyField
 
+from app.forms.mptt import CustomTreeNodeChoiceField, CustomTreeNodeMultipleChoiceField
+
 
 class ArticleQuerySet(QuerySet):
     def processed_with_categories(self):
@@ -18,10 +20,22 @@ class ArticleQuerySet(QuerySet):
         return self.unprocessed().order_by('id_arxiv').first()
 
 
+class CustomTreeForeignKey(TreeForeignKey):
+    def formfield(self, **kwargs):
+        kwargs['form_class'] = CustomTreeNodeChoiceField
+        return super().formfield(**kwargs)
+
+
+class CustomTreeManyToManyField(TreeManyToManyField):
+    def formfield(self, **kwargs):
+        kwargs['form_class'] = CustomTreeNodeMultipleChoiceField
+        return super().formfield(**kwargs)
+
+
 class Article(Model):
     id_arxiv = CharField(max_length=20, unique=True)
-    categories = TreeManyToManyField('Category',
-                                     blank=True)
+    categories = CustomTreeManyToManyField('Category',
+                                           blank=True)
     # TODO - validate that only contains a whitelist of html tags
     html_meta = TextField()
     is_processed = BooleanField(default=False)
@@ -39,8 +53,8 @@ class Article(Model):
 
     @cached_property
     def categories_str(self):
-        cats = [c.name for c in self.categories.all()]
-        return ', '.join(cats)
+        cats = [c._name_choices_str for c in self.categories.all()]
+        return mark_safe('<br>'.join(cats))
 
     categories_str.short_description = 'Categories'
 
@@ -54,14 +68,23 @@ class Article(Model):
 
 
 class Category(MPTTModel):
-    parent = TreeForeignKey('self',
-                            on_delete=CASCADE,
-                            null=True,
-                            blank=True)
+    parent = CustomTreeForeignKey('self',
+                                  on_delete=CASCADE,
+                                  null=True,
+                                  blank=True)
     name = CharField(max_length=255)
+    _name_choices_str = CharField(max_length=255)
 
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        ancestors = [str(a) for a in self.parent.get_ancestors(include_self=True)] if self.parent else []
+        self._name_choices_str = '/'.join(ancestors + [self.name])
+        res = super().save(*args, **kwargs)
+        for child in self.get_children():
+            child.save(*args, **kwargs)  # update child's _name_choices_str
+        return res
 
     class Meta:
         verbose_name_plural = "categories"
