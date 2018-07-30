@@ -10,9 +10,6 @@ from app.forms.mptt import CustomTreeNodeChoiceField, CustomTreeNodeMultipleChoi
 
 
 class ArticleQuerySet(QuerySet):
-    def processed_with_categories(self):
-        return self.filter(is_processed=True).exclude(categories=None)
-
     def unprocessed(self):
         return self.filter(is_processed=False)
 

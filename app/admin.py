@@ -28,17 +28,6 @@ class ArticleAdmin(admin.ModelAdmin):
     def has_delete_permission(self, request, obj=None):
         return False
 
-    def get_queryset(self, request):
-        # override queryset for "article list" page to only display procesed articles
-        # otherwise need to use unfiltered queryset, because add/edit/etc. pages expect article being in queryset
-        if request.path == reverse('admin:app_article_changelist'):
-            qs = self.model.objects.processed_with_categories()
-            ordering = self.get_ordering(request)
-            if ordering:
-                qs = qs.order_by(*ordering)
-            return qs
-        return super().get_queryset(request)
-
     def changelist_view(self, request, extra_context=None):
         if extra_context is None:
             extra_context = {}
