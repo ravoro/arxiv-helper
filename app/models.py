@@ -35,7 +35,7 @@ class Article(Model):
                                            blank=True)
     # TODO - validate that only contains a whitelist of html tags
     html_meta = TextField()
-    is_processed = BooleanField(default=False)
+    is_processed = BooleanField(default=False, verbose_name='Processed')
     date_submitted = DateField()
     date_updated = DateField(verbose_name='Date')
 

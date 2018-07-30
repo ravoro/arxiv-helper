@@ -1,7 +1,6 @@
 from django.conf.urls import url
 from django.contrib import admin, messages
 from django.shortcuts import redirect
-from django.urls import reverse
 from mptt.admin import MPTTModelAdmin, TreeRelatedFieldListFilter
 
 from .models import Article, Category
@@ -18,8 +17,9 @@ class ArticleAdmin(admin.ModelAdmin):
     change_list_template = 'app/admin/change_list.html'
     fields = ['html_meta_safe', 'categories']
     filter_horizontal = ['categories']
-    list_display = ['__str__', 'title', 'categories_str', 'date_updated']
+    list_display = ['__str__', 'title', 'categories_str', 'is_processed', 'date_updated']
     list_filter = [('categories', TreeRelatedFieldListFilter)]
+    ordering = ['-date_updated', '-id_arxiv']
     readonly_fields = ['html_meta_safe']
 
     def has_add_permission(self, request):
