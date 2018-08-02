@@ -17,12 +17,11 @@ body.app-app.model-article.change-form #content h1 {
 }
 
 #article_form .form-row > div > label {
-    font-weight: bold;
-    width: 80px;
+    display: none;
 }
 
 #article_form .form-row > div > label + .readonly {
-    margin-left: 90px;
+    margin-left: 0;
 }
 
 #article_form .field-html_meta_safe,
@@ -86,7 +85,7 @@ body.app-app.model-article.change-form #content h1 {
     background: #79aec8;
     float: left;
     height: auto;
-    left: 910px;
+    left: 820px;
     max-width: 210px;
     position: relative;
     top: -390px;
