@@ -70,6 +70,20 @@ body.app-app.model-article.change-form #content h1 {
     font-weight: bold;
 }
 
+#article_form .field-categories .selector {
+    width: 940px;
+}
+
+#article_form .field-categories .selector .selector-available,
+#article_form .field-categories .selector .selector-chosen,
+#article_form .field-categories .selector select {
+    width: 450px;
+}
+
+#article_form .field-categories .selector .selector-chosen select {
+    height: 210px;
+}
+
 #article_form .field-categories .selector #id_categories_add_all_link,
 #article_form .field-categories .selector #id_categories_remove_all_link {
     display: none;
@@ -84,12 +98,9 @@ body.app-app.model-article.change-form #content h1 {
 #article_form .submit-row input[type=submit] {
     background: #79aec8;
     float: left;
-    height: auto;
-    left: 820px;
-    max-width: 210px;
+    left: 470px;
     position: relative;
-    top: -390px;
-    white-space: normal;
+    top: -120px;
 }
 
 #article_form .submit-row input[type=submit]:active,
