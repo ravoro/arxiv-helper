@@ -12,6 +12,10 @@
     <script>
         setTimeout(function () {
             document.querySelector('#id_categories_filter #id_categories_input').focus();
+
+            document.querySelector('#id_categories_add_link').setAttribute('tabindex', '-1');
+            document.querySelector('#id_categories_remove_link').setAttribute('tabindex', '-1');
+            document.querySelector('#id_categories_to').setAttribute('tabindex', '-1');
         }, 1000);
     </script>
 {% endblock %}
