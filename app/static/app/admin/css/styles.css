@@ -79,6 +79,17 @@ body.app-app.model-article.change-form #content h1 {
 }
 
 #article_form .submit-row input[type=submit] {
+    background: #79aec8;
+    float: left;
+    height: auto;
+    left: 910px;
+    max-width: 210px;
     position: relative;
-    top: -370px;
+    top: -415px;
+    white-space: normal;
+}
+#article_form .submit-row input[type=submit]:active,
+#article_form .submit-row input[type=submit]:focus,
+#article_form .submit-row input[type=submit]:hover {
+    background: #205067
 }
