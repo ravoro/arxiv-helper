@@ -12,7 +12,6 @@ body.app-app.model-article.change-form #content h1 {
     font-size: 15px;
 }
 
-
 #article_form .field-html_meta_safe dt > a[name^=item] {
     display: none;
 }
@@ -72,6 +71,11 @@ body.app-app.model-article.change-form #content h1 {
     font-weight: bold;
 }
 
+#article_form .field-categories .selector #id_categories_add_all_link,
+#article_form .field-categories .selector #id_categories_remove_all_link {
+    display: none;
+}
+
 #article_form .submit-row {
     background: #fff;
     border: 0;
@@ -85,9 +89,10 @@ body.app-app.model-article.change-form #content h1 {
     left: 910px;
     max-width: 210px;
     position: relative;
-    top: -415px;
+    top: -390px;
     white-space: normal;
 }
+
 #article_form .submit-row input[type=submit]:active,
 #article_form .submit-row input[type=submit]:focus,
 #article_form .submit-row input[type=submit]:hover {
