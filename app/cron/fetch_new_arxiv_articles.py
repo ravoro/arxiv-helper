@@ -211,12 +211,13 @@ def _soup_to_articles(soup):
 def run():
     logging.warning("Running 'fetch_new_articles' job at {}".format(datetime.now()))
 
+    # feeds are in priority order
     arxiv_feed_urls = [
         settings.ARXIV_CS_FEED_URL,
-        settings.ARXIV_EESS_FEED_URL,
         settings.ARXIV_NLIN_FEED_URL,
-        settings.ARXIV_PHYSICS_FEED_URL,
         settings.ARXIV_QBIO_FEED_URL,
+        settings.ARXIV_PHYSICS_FEED_URL,
+        settings.ARXIV_EESS_FEED_URL,
     ]
 
     new_submissions = []
