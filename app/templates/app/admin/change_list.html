@@ -11,3 +11,8 @@
         {% endif %}
     </li>
 {% endblock %}
+
+{% block result_list %}
+    {% block pagination %}{{ block.super }}{% endblock %}
+    {{ block.super }}
+{% endblock %}
