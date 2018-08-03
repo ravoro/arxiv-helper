@@ -1,5 +1,6 @@
 from django.conf.urls import url
 from django.contrib import admin, messages
+from django.contrib.admin import ModelAdmin, FieldListFilter
 from django.shortcuts import redirect
 from mptt.admin import MPTTModelAdmin, TreeRelatedFieldListFilter
 
@@ -11,10 +12,10 @@ admin.site.index_template = 'app/admin/index.html'
 admin.site.site_url = None
 
 
-class ArticleAdmin(admin.ModelAdmin):
+class ArticleAdmin(ModelAdmin):
     actions = None
     change_form_template = 'app/admin/change_form.html'
-    change_list_template = 'app/admin/change_list.html'
+    change_list_template = 'app/admin/change_list_articles.html'
     fields = ['html_meta_safe', 'categories']
     filter_horizontal = ['categories']
     list_display = ['__str__', 'title', 'categories_str', 'is_processed', 'date_updated']
@@ -78,5 +79,45 @@ class CategoryAdmin(MPTTModelAdmin):
     fields = ['parent', 'name']
 
 
+class ArticleDigest(Article):
+    class Meta:
+        proxy = True
+
+
+class UsedDatesListFilter(FieldListFilter):
+    def __init__(self, field, request, params, model, model_admin, field_path):
+        self.field_generic = '%s' % field_path
+        self.date_params = {k: v for k, v in params.items() if k.startswith(self.field_generic)}
+        self.lookup_kwarg_date = '%s' % field_path
+
+        dates_queryset = Article.objects.all().values('date_updated').distinct().order_by('-date_updated')
+        dates = [d['date_updated'] for d in dates_queryset]
+        dates_links = [(str(d), {self.lookup_kwarg_date: str(d)}) for d in dates]
+        self.links = [('Any date', {})] + dates_links
+
+        super().__init__(field, request, params, model, model_admin, field_path)
+
+    def expected_parameters(self):
+        return [self.lookup_kwarg_date]
+
+    def choices(self, changelist):
+        for title, param_dict in self.links:
+            yield {
+                'selected': self.date_params == param_dict,
+                'query_string': changelist.get_query_string(param_dict, [self.field_generic]),
+                'display': title,
+            }
+
+
+class ArticleDigestAdmin(ModelAdmin):
+    actions = None
+    change_list_template = 'app/admin/change_list.html'
+    list_display = ['html_meta_safe']
+    list_display_links = None
+    list_filter = [('date_updated', UsedDatesListFilter), ('categories', TreeRelatedFieldListFilter)]
+    ordering = ['-date_updated', 'id_arxiv']
+
+
 admin.site.register(Article, ArticleAdmin)
 admin.site.register(Category, CategoryAdmin)
+admin.site.register(ArticleDigest, ArticleDigestAdmin)

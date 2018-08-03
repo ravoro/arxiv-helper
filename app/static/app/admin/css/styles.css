@@ -1,18 +1,71 @@
+/*** main shared header ***/
+
 #header #user-tools {
     font-size: 12px;
 }
 
-body.app-app.model-article.change-form #content h1 {
+/*** html_meta_safe field shared between article change form and article digest list ***/
+
+.field-html_meta_safe dt > a[name^=item] {
     display: none;
 }
 
-#article_form dt,
-#article_form dd,
-#article_form p {
+.field-html_meta_safe,
+.field-html_meta_safe p {
+    color: black;
+    font-family: 'Lucida Grande', helvetica, arial, verdana, sans-serif;
+}
+
+.field-html_meta_safe a {
+    color: blue;
+}
+
+.field-html_meta_safe dd {
+    margin-left: 5px;
+    margin-top: 5px;
+}
+
+.field-html_meta_safe p {
+    margin-top: 15px;
+}
+
+.field-html_meta_safe dt,
+.field-html_meta_safe dd,
+.field-html_meta_safe p {
     font-size: 15px;
 }
 
-#article_form .field-html_meta_safe dt > a[name^=item] {
+
+.field-html_meta_safe .list-authors {
+    font-size: 16px;
+}
+
+.field-html_meta_safe .list-authors .descriptor {
+    display: none;
+}
+
+.field-html_meta_safe .list-title {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.field-html_meta_safe .list-title .descriptor {
+    display: none;
+}
+
+.field-html_meta_safe .list-comments,
+.field-html_meta_safe .list-journal-ref,
+.field-html_meta_safe .list-subjects {
+    font-size: 13px;
+}
+
+.field-html_meta_safe .list-subjects .primary-subject {
+    font-weight: bold;
+}
+
+/*** ARTICLE CHANGE FORM ***/
+
+body.app-app.model-article.change-form #content h1 {
     display: none;
 }
 
@@ -22,52 +75,6 @@ body.app-app.model-article.change-form #content h1 {
 
 #article_form .form-row > div > label + .readonly {
     margin-left: 0;
-}
-
-#article_form .field-html_meta_safe,
-#article_form .field-html_meta_safe p {
-    color: black;
-    font-family: 'Lucida Grande', helvetica, arial, verdana, sans-serif;
-}
-
-#article_form .field-html_meta_safe a {
-    color: blue;
-}
-
-#article_form .field-html_meta_safe dd {
-    margin-left: 5px;
-    margin-top: 5px;
-}
-
-#article_form .field-html_meta_safe p {
-    margin-top: 15px;
-}
-
-#article_form .field-html_meta_safe .list-authors {
-    font-size: 16px;
-}
-
-#article_form .field-html_meta_safe .list-authors .descriptor {
-    display: none;
-}
-
-#article_form .field-html_meta_safe .list-title {
-    font-size: 18px;
-    font-weight: bold;
-}
-
-#article_form .field-html_meta_safe .list-title .descriptor {
-    display: none;
-}
-
-#article_form .field-html_meta_safe .list-comments,
-#article_form .field-html_meta_safe .list-journal-ref,
-#article_form .field-html_meta_safe .list-subjects {
-    font-size: 13px;
-}
-
-#article_form .field-html_meta_safe .list-subjects .primary-subject {
-    font-weight: bold;
 }
 
 #article_form .field-categories {
@@ -116,4 +123,19 @@ body.app-app.model-article.change-form #content h1 {
 #article_form .submit-row input[type=submit]:focus,
 #article_form .submit-row input[type=submit]:hover {
     background: #205067
+}
+
+/*** ARTICLE DIGEST CHANGE LIST ***/
+
+body.model-articledigest #content > h1 {
+    display: none;
+}
+
+body.model-articledigest #changelist-form #result_list thead {
+    display: none;
+}
+
+body.model-articledigest #changelist-form #result_list .row1,
+body.model-articledigest #changelist-form #result_list .row2 {
+    background: none;
 }
