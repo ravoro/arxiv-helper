@@ -1,0 +1,31 @@
+{% extends "admin/change_list.html" %}
+
+{% load static %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'app/admin/css/styles.css' %}?v=20180803.2">
+{% endblock %}
+
+{% block branding %}
+    {% include 'app/admin/_branding.html' %}
+{% endblock %}
+
+{% block breadcrumbs %}{% endblock %}
+
+{% block object-tools-items %}
+    <li>
+        {% if unprocessed_articles_count %}
+            <a href="{% url 'admin:process-next-article' %}">Process New Articles ({{ unprocessed_articles_count }})</a>
+        {% else %}
+            <span>No new articles.</span>
+        {% endif %}
+    </li>
+{% endblock %}
+
+{% block content_title %}<h1>Articles</h1>{% endblock %}
+
+{% block result_list %}
+    {% block pagination %}{{ block.super }}{% endblock %}
+    {{ block.super }}
+{% endblock %}

@@ -1,5 +1,17 @@
 /*** main shared header ***/
 
+#header #branding #site-name {
+    display: inline-block;
+}
+
+#header #branding nav {
+    display: inline-block;
+}
+
+#header #branding nav > * {
+    margin-right: 10px;
+}
+
 #header #user-tools {
     font-size: 12px;
 }
@@ -127,9 +139,6 @@ body.app-app.model-article.change-form #content h1 {
 
 /*** ARTICLE DIGEST CHANGE LIST ***/
 
-body.model-articledigest #content > h1 {
-    display: none;
-}
 
 body.model-articledigest #changelist-form #result_list thead {
     display: none;

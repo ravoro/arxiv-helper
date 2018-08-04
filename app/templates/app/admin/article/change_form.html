@@ -20,6 +20,12 @@
     </script>
 {% endblock %}
 
+{% block branding %}
+    {% include 'app/admin/_branding.html' %}
+{% endblock %}
+
+{% block object-tools-items %}{% endblock %}
+
 {% block submit_buttons_bottom %}
     {% if show_custom_submit_row %}
         <div class="submit-row">
@@ -29,6 +35,3 @@
         {% submit_row %}
     {% endif %}
 {% endblock %}
-
-
-{% block object-tools-items %}{% endblock %}

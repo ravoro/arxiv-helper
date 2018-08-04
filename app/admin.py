@@ -14,8 +14,8 @@ admin.site.site_url = None
 
 class ArticleAdmin(ModelAdmin):
     actions = None
-    change_form_template = 'app/admin/change_form.html'
-    change_list_template = 'app/admin/change_list_articles.html'
+    change_form_template = 'app/admin/article/change_form.html'
+    change_list_template = 'app/admin/article/change_list.html'
     fields = ['html_meta_safe', 'categories']
     filter_horizontal = ['categories']
     list_display = ['__str__', 'title', 'categories_str', 'is_processed', 'date_updated']
@@ -111,7 +111,7 @@ class UsedDatesListFilter(FieldListFilter):
 
 class ArticleDigestAdmin(ModelAdmin):
     actions = None
-    change_list_template = 'app/admin/change_list.html'
+    change_list_template = 'app/admin/articledigest/change_list.html'
     list_display = ['html_meta_safe']
     list_display_links = None
     list_filter = [('date_updated', UsedDatesListFilter), ('categories', TreeRelatedFieldListFilter)]
