@@ -79,6 +79,7 @@ class CategoryAdmin(MPTTModelAdmin):
     change_form_template = 'app/admin/category/change_form.html'
     change_list_template = 'app/admin/category/change_list.html'
     fields = ['parent', 'name']
+    list_display = ['_name_choices_str']
 
 
 class ArticleDigest(Article):
