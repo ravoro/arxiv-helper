@@ -1,0 +1,21 @@
+{% extends "admin/mptt_change_list.html" %}
+
+{% load static %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    {% include 'app/admin/_styles.html' %}
+{% endblock %}
+
+{% block branding %}
+    {% include 'app/admin/_branding.html' %}
+{% endblock %}
+
+{% block breadcrumbs %}{% endblock %}
+
+{% block content_title %}<h1>Categories</h1>{% endblock %}
+
+{% block result_list %}
+    {% block pagination %}{{ block.super }}{% endblock %}
+    {{ block.super }}
+{% endblock %}

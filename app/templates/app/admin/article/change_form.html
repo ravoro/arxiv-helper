@@ -4,7 +4,7 @@
 
 {% block extrastyle %}
     {{ block.super }}
-    <link rel="stylesheet" href="{% static 'app/admin/css/styles.css' %}?v=20180803.2">
+    {% include 'app/admin/_styles.html' %}
 {% endblock %}
 
 {% block extrahead %}
@@ -23,6 +23,8 @@
 {% block branding %}
     {% include 'app/admin/_branding.html' %}
 {% endblock %}
+
+{% block breadcrumbs %}{% endblock %}
 
 {% block object-tools-items %}{% endblock %}
 

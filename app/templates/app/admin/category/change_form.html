@@ -1,0 +1,14 @@
+{% extends "admin/change_form.html" %}
+
+{% load static %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    {% include 'app/admin/_styles.html' %}
+{% endblock %}
+
+{% block branding %}
+    {% include 'app/admin/_branding.html' %}
+{% endblock %}
+
+{% block breadcrumbs %}{% endblock %}
