@@ -124,7 +124,7 @@ def _soup_to_articles(soup):
     section_titles = dlpage.select('h3')
 
     if len(section_titles) != 3:
-        logging.warning('Did not have 3 section titles. section_titles: {}.'.format(section_titles))
+        print('Did not have 3 section titles. section_titles: {}.'.format(section_titles))
 
     new_submissions_title = section_titles[0]
     _assert_or_exit(new_submissions_title.text.strip().lower().startswith('new submissions for'),
@@ -153,7 +153,7 @@ def _soup_to_articles(soup):
                     'A submission did not contain a valid arxiv id.')
 
     new_submissions = [_submission_tag_to_dict(s) for s in new_submissions_tags]
-    logging.warning('Detected {} new submissions.'.format(len(new_submissions)))
+    print('Detected {} new submissions.'.format(len(new_submissions)))
 
     # Process crosslists
     crosslists = []
@@ -175,7 +175,7 @@ def _soup_to_articles(soup):
                         'A crosslist did not contain a valid arxiv id.')
 
         crosslists = [_submission_tag_to_dict(s) for s in crosslists_tags]
-    logging.warning('Detected {} crosslists.'.format(len(crosslists)))
+    print('Detected {} crosslists.'.format(len(crosslists)))
 
     # Process replacements
     replacements = []
@@ -199,7 +199,7 @@ def _soup_to_articles(soup):
                         'A replacement did not contain a valid arxiv id.')
 
         replacements = [_submission_tag_to_dict(s) for s in replacements_tags]
-    logging.warning('Detected {} replacements.'.format(len(replacements)))
+    print('Detected {} replacements.'.format(len(replacements)))
 
     return {
         'new_submissions': new_submissions,
@@ -209,7 +209,7 @@ def _soup_to_articles(soup):
 
 
 def run():
-    logging.warning("Running 'fetch_new_articles' job at {}".format(datetime.now()))
+    print("Running 'fetch_new_articles' job at {}".format(datetime.now()))
 
     # feeds are in priority order
     arxiv_feed_urls = [
@@ -224,7 +224,7 @@ def run():
     crosslists = []
     replacements = []
     for feed_url in arxiv_feed_urls:
-        logging.warning('Assessing url: {}'.format(feed_url))
+        print('Assessing url: {}'.format(feed_url))
         soup = _url_to_soup(feed_url)
         articles = _soup_to_articles(soup)
         new_submissions += articles['new_submissions']
@@ -235,7 +235,7 @@ def run():
     submission_date = _get_date_from_new_submissions_title_or_none(_cs_new_submissions_title)
 
     for submission in new_submissions:
-        logging.warning('Creating "new submission": {}'.format(submission['id_arxiv']))
+        print('Creating "new submission": {}'.format(submission['id_arxiv']))
         try:
             Article.objects.create(id_arxiv=submission['id_arxiv'],
                                    html_meta=submission['html_meta'],
@@ -243,10 +243,10 @@ def run():
                                    date_updated=submission_date,
                                    is_processed=False)
         except IntegrityError:
-            logging.warning('Integrity error occurred adding "new submission" #{}. Ignoring error and proceeding.'.format(submission['id_arxiv']))
+            print('Integrity error occurred adding "new submission" #{}. Ignoring error and proceeding.'.format(submission['id_arxiv']))
 
     for crosslist in crosslists:
-        logging.warning('Creating crosslist: {}'.format(crosslist['id_arxiv']))
+        print('Creating crosslist: {}'.format(crosslist['id_arxiv']))
         try:
             Article.objects.create(id_arxiv=crosslist['id_arxiv'],
                                    html_meta=crosslist['html_meta'],
@@ -254,13 +254,13 @@ def run():
                                    date_updated=submission_date,
                                    is_processed=False)
         except IntegrityError:
-            logging.warning('Integrity error occurred adding "crosslist" #{}. Marking record as unprocessed.'.format(crosslist['id_arxiv']))
+            print('Integrity error occurred adding "crosslist" #{}. Marking record as unprocessed.'.format(crosslist['id_arxiv']))
             article = Article.objects.get(id_arxiv=crosslist['id_arxiv'])
             article.is_processed = False
             article.save()
 
     for replacement in replacements:
-        logging.warning('Creating replacement: {}'.format(replacement['id_arxiv']))
+        print('Creating replacement: {}'.format(replacement['id_arxiv']))
         try:
             # TODO: Fetch complete article details for replacement that is not yet in db
             Article.objects.create(id_arxiv=replacement['id_arxiv'],
@@ -269,7 +269,7 @@ def run():
                                    date_updated=submission_date,
                                    is_processed=False)
         except IntegrityError:
-            logging.warning('Integrity error occurred adding "replacement" #{}. Marking record as unprocessed.'.format(replacement['id_arxiv']))
+            print('Integrity error occurred adding "replacement" #{}. Marking record as unprocessed.'.format(replacement['id_arxiv']))
             article = Article.objects.get(id_arxiv=replacement['id_arxiv'])
             article.is_processed = False
             article.date_updated = submission_date
