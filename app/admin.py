@@ -8,7 +8,6 @@ from .models import Article, Category
 
 admin.site.site_header = 'Arxiv Helper'
 admin.site.site_title = admin.site.site_header
-admin.site.index_template = 'app/admin/index.html'
 admin.site.site_url = None
 
 
