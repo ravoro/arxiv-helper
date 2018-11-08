@@ -107,6 +107,14 @@ function migrate_db() {
 }
 
 
+function setup_crontab() {
+    echo -e "\nSetting up crontab ..."
+    source ${SITE_DIR}/venv/bin/activate
+    ${SITE_DIR}/manage.py crontab add --settings=project.settings.prod
+    deactivate
+}
+
+
 function setup_apache() {
     echo -e "\nSetting up apache ..."
     cp -f ${DEPLOY_DIR}/apache.conf /etc/apache2/sites-available/arxivhelper.conf
@@ -134,6 +142,7 @@ enable_new_site
 setup_virtualenv
 collect_static
 migrate_db
+setup_crontab
 setup_apache
 restart_apache
 echo -e "\nDeployment done!"
